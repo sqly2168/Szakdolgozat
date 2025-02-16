@@ -3,21 +3,62 @@ import os                               # Mappak konyvtarak etc.
 import random                           #random szamok
 import numpy as np                      #matek
 from matplotlib import pyplot as plt    #fgv kirajzolasa
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0" #ez csak egy warning-ra van, nem kell figyelni
+import torch
 
-# Tensorflow dependencyk - Functional API
-from tensorflow.python.keras.models import Model        
-from tensorflow.python.keras.layers import Layer, Conv2D, Dense, MaxPooling2D, Input, Flatten
-import tensorflow as tf
 
-# Avoid OOM errors by setting GPU Memory Consumption Growth
-gpus = tf.config.experimental.list_physical_devices('GPU') # GPU-k listazasa
-for gpu in gpus: 
-    tf.config.experimental.set_memory_growth(gpu, True) #gpu memoriajanak hasznalata
+#teszt mukodik, felismeri a gpu-t
+'''
+if torch.cuda.is_available():
+    print(f"GPU elérhető: {torch.cuda.get_device_name(0)}")
+else:
+    print("Nem található GPU.")
+'''
+
+# Szokásos módon kell a referenciakép, meg lehet adni lokálisan, ha nincs megadva akkor kamerából olvasok
+anchor_img_path = "semmi.jpg"
+#anchor_img_path = "C:\\Users\\SQLY\\Desktop\\ow.png"
+anchor_img = cv2.imread(anchor_img_path) 
+
+if anchor_img is None:
+    print("Kamerás Anchor kép készítése...")
+else:
+    print("Referenciakép betöltve.")
+    cv2.imshow("Referenciakép (Anchor): ", anchor_img)
+    cv2.waitKey(3000)  # 3 másodpercig mutatja az anchort
+
+
+cap = cv2.VideoCapture(0)
+if not cap.isOpened():
+    print("Hiba: Nem sikerült megnyitni a kamerát!") #töltelékkód a szakdogába
+    exit()
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        print("Hiba: Nem sikerült beolvasni a kameraképet!") #töltelékkód a szakdogába2
+        break
     
-for gpu in gpus: 
-    print(gpu) # GPU-k listazasa
+    cv2.imshow("Cheese! ---> nyomd meg a 0-ás gombot és elkészül az anchor", frame)
 
-print(tf.test.is_built_with_cuda())
-print(tf.test.is_gpu_available())
-print(tf.config.list_physical_devices('GPU'))
+    pressedkey = cv2.waitKey(1) & 0xFF
+    # Ha '0'-t nyomunk, akkor az aktuális kameraképet menti az anchor_img változóba
+    if pressedkey == ord('0'):
+        anchor_img = frame.copy()              #így nem kell bezárni a kamerát hogy menthessem a képen
+        cv2.imwrite("anchor.jpg", anchor_img)  # Kép mentése a mappába is
+        print("Anchor kép frissítve!")
+        cv2.imshow("Referenciakép (Anchor): ", anchor_img)
+    
+    # Kilépés a q-val
+    if pressedkey == ord('q'):
+        break
+
+# Kamera bezárása, ram felszabadítása --ajánlott
+cap.release()
+cv2.destroyAllWindows()
+
+
+#kellenek 2 személyről képek 
+
+#neurális háló betanítása -- resnet --- random forest
+# modelleknek utánanézni
+#először szinesek
