@@ -6,13 +6,6 @@ from matplotlib import pyplot as plt    #fgv kirajzolasa
 import torch
 
 
-#teszt mukodik, felismeri a gpu-t
-'''
-if torch.cuda.is_available():
-    print(f"GPU elérhető: {torch.cuda.get_device_name(0)}")
-else:
-    print("Nem található GPU.")
-'''
 
 # Szokásos módon kell a referenciakép, meg lehet adni lokálisan, ha nincs megadva akkor kamerából olvasok
 anchor_img_path = "semmi.jpg"
