@@ -81,4 +81,4 @@ class resNet(nn.Module):
 model = resNet([3, 4, 6, 3])
 input_data = torch.randn(1, 3, 224, 224)
 output = model(input_data)
-print(output.shape)
+print(output.shape) # (1, 1000)
