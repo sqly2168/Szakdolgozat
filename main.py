@@ -50,8 +50,6 @@ cap.release()
 cv2.destroyAllWindows()
 
 
-#kellenek 2 személyről képek 
 
-#neurális háló betanítása -- resnet --- random forest
-# modelleknek utánanézni
 #először szinesek
+#frekvencia diagramm
