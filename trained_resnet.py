@@ -3,6 +3,7 @@ import torch.nn as nn
 import cv2
 import numpy as np
 from torchvision import transforms
+from PIL import Image
 import os
 from numpy.linalg import norm
 
@@ -84,72 +85,87 @@ class resNet(nn.Module):
         return x
 
 #-------------------------------------------------------------
-# Modellpéldány létrehozása
+# Modellpéldány létrehozása és betöltése
+embedding_dim = 128
+num_classes = 2  # aron és apa
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = resNet([3, 4, 6, 3]).to(device)
+model = resNet([3, 4, 6, 3], embedding_dim=embedding_dim).to(device)
+classifier = nn.Linear(embedding_dim, num_classes).to(device)
+
+model.load_state_dict(torch.load("trained_resnet_embeddings_sajatkepek.pth"))
+classifier.load_state_dict(torch.load("resnet_classifier_sajatkepek.pth"))
+
+model.eval()
+classifier.eval()
 
 #-------------------------------------------------------------
-# Képfeldolgozási transzformációk
+# Transzformáció
 transform = transforms.Compose([
-    transforms.ToPILImage(),
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
-    transforms.Normalize([0.5], [0.5])  # Normalizálás (-1 és 1 között)
+    transforms.Normalize([0.5], [0.5])
 ])
 
 def preprocess_image(image_path):
-    """Betölti, átméretezi és normalizálja a képet"""
     img = cv2.imread(image_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(img)  # NumPy -> PIL konverzió! mivel PIL vár!
     img = transform(img)
-    img = img.unsqueeze(0)  # Extra dimenzió hozzáadása
+    img = img.unsqueeze(0)
     return img.to(device)
 
-def get_embedding(model, image_path):
-    """ Kiszámolja az embedding vektort egy képre """
+def predict_class(image_path):
     img = preprocess_image(image_path)
-
-    model.eval()
     with torch.no_grad():
         embedding = model(img)
-
-    return embedding.cpu().squeeze(0).numpy()  # 1D vektorrá alakítás
-
-#-------------------------------------------------------------
-# Koszinusz hasonlóság számítás
-def cosine_similarity(vec1, vec2, epsilon=1e-8):
-    """ Koszinusz hasonlóság két embedding vektor között """
-    vec1, vec2 = vec1.flatten(), vec2.flatten()
-    return np.dot(vec1, vec2) / (norm(vec1) * norm(vec2) + epsilon)
+        output = classifier(embedding)
+        probs = torch.softmax(output, dim=1)
+        pred_class = torch.argmax(probs, dim=1).item()
+    return pred_class, probs.squeeze().cpu().numpy()
 
 #-------------------------------------------------------------
-# Anchor kép betöltése és embedding generálás
-anchor_path = "anchor.jpg"
-if os.path.exists(anchor_path):
-    anchor_embedding = get_embedding(model, anchor_path)
-    print(" Anchor embedding létrehozva!")
-else:
-    print(" Hiba: Anchor kép nem található!")
-    exit()
+#futtatás mappában lévő képekkel
+def batch_predict_folder(folder_path, class_names):
+    """ Végigmegy a mappán és osztályoz minden képet """
+    if not os.path.exists(folder_path):
+        print(" nincs ilyen mappa")
+        return
 
-#-------------------------------------------------------------
-# Pozitív és negatív képek összehasonlítása
-positive_folder = "data/train/apa" #pozitív
-negative_folder = "data/train/aron"
-threshold = 0.6  # Ha 60% felett van, akkor egyező arcok
+    print(f"\n {folder_path} mappa képei:\n")
 
-print("\n[P] Pozitív képek ellenőrzése:")
-for img_name in os.listdir(positive_folder):
-    img_path = os.path.join(positive_folder, img_name)
-    test_embedding = get_embedding(model, img_path)
-    similarity = cosine_similarity(anchor_embedding, test_embedding)
-    result = " EGYEZIK" if similarity > threshold else " NEM EGYEZIK"
-    print(f" {img_name} - Hasonlóság: {similarity:.4f} - {result}")
+    class_counts = [0 for i in class_names]
 
-print("\n[N] Negatív képek ellenőrzése:")
-for img_name in os.listdir(negative_folder):
-    img_path = os.path.join(negative_folder, img_name)
-    test_embedding = get_embedding(model, img_path)
-    similarity = cosine_similarity(anchor_embedding, test_embedding)
-    result = " NEM EGYEZIK" if similarity < threshold else " HIBA"
-    print(f" {img_name} - Hasonlóság: {similarity:.4f} - {result}")
+    for filename in os.listdir(folder_path):
+
+        image_path = os.path.join(folder_path, filename)
+        try:
+            pred, probs = predict_class(image_path)
+            class_counts[pred] += 1
+            print(f"{filename} --> {class_names[pred]} ({probs[pred]*100:.2f}%)")
+        except Exception as e:
+            print(f"Hiba {filename} feldolgozása közben: {e}")
+    
+    for i, count in enumerate(class_counts):
+        print(f"{class_names[i]}: {count} kép")
+
+# Futtatás
+if __name__ == "__main__":
+   if __name__ == "__main__":
+    class_names = ["apa", "aron"]
+    folder = "data/negative"
+
+    batch_predict_folder(folder, class_names)
+
+'''Futtatás anchorképpel
+if __name__ == "__main__":
+    class_names = ["apa", "te"]
+    image_path = "achor.jpg" 
+
+    if not os.path.exists(image_path):
+        print("nincs ilyen kep")
+    else:
+        pred, probs = predict_class(image_path)
+        print(f"\n A kép osztálya: {class_names[pred]}")
+        print(f"Valószínűségek: {probs}")
+'''
