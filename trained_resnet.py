@@ -158,7 +158,7 @@ if __name__ == "__main__":
 '''
 #Futtatás anchorképpel
 if __name__ == "__main__":
-    class_names = ["apa", "aron"]
+    class_names = ["apa", "aron", "hanna"]
     image_path = "anchor.jpg" 
 
     if not os.path.exists(image_path):
