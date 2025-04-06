@@ -87,14 +87,14 @@ class resNet(nn.Module):
 #-------------------------------------------------------------
 # Modellpéldány létrehozása és betöltése
 embedding_dim = 128
-num_classes = 2  # aron és apa
+num_classes = 3  # aron apa és hanna
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = resNet([3, 4, 6, 3], embedding_dim=embedding_dim).to(device)
 classifier = nn.Linear(embedding_dim, num_classes).to(device)
 
-model.load_state_dict(torch.load("trained_resnet_embeddings_sajatkepek.pth"))
-classifier.load_state_dict(torch.load("resnet_classifier_sajatkepek.pth"))
+model.load_state_dict(torch.load("trained_resnet_embeddings_three_person.pth"))
+classifier.load_state_dict(torch.load("resnet_classifier_three_person.pth"))
 
 model.eval()
 classifier.eval()
@@ -151,16 +151,15 @@ def batch_predict_folder(folder_path, class_names):
 
 # Futtatás
 if __name__ == "__main__":
-   if __name__ == "__main__":
-    class_names = ["apa", "aron"]
-    folder = "data/negative"
+    class_names = ["apa", "aron", "hanna"]
+    folder = "data/employees/aron"
 
     batch_predict_folder(folder, class_names)
-
-'''Futtatás anchorképpel
+'''
+#Futtatás anchorképpel
 if __name__ == "__main__":
-    class_names = ["apa", "te"]
-    image_path = "achor.jpg" 
+    class_names = ["apa", "aron"]
+    image_path = "anchor.jpg" 
 
     if not os.path.exists(image_path):
         print("nincs ilyen kep")

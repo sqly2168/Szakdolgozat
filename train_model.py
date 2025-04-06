@@ -81,6 +81,6 @@ for epoch in range(num_epochs):
     print(f"\n Epoch {epoch+1}/{num_epochs} | Loss: {loss:.4f} | Val Acc: {acc:.4f}")
 
 # Modell mentése
-torch.save(model.state_dict(), "trained_resnet_embeddings_sajatkepek.pth")
-torch.save(classifier.state_dict(), "resnet_classifier_sajatkepek.pth")
+torch.save(model.state_dict(), "trained_resnet_embeddings_three_person.pth")
+torch.save(classifier.state_dict(), "resnet_classifier_three_person.pth")
 print("\n Modell és osztályozó elmentve!")
