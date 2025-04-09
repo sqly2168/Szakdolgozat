@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt    #fgv kirajzolasa
 import torch
 
 # Mappa az új személy képeihez
-save_dir = "data/hanna"
+save_dir = "data/fanni"
 os.makedirs(save_dir, exist_ok=True)
 
 # Szokásos módon kell a referenciakép, meg lehet adni lokálisan, ha nincs megadva akkor kamerából olvasok
@@ -65,7 +65,7 @@ while True:
 
     # 't' → új személy kép mentése egyedi névvel
     if pressedkey == ord('t'):
-        image_filename = f"hanna_{image_counter:04d}.jpg"
+        image_filename = f"fanni_{image_counter:04d}.jpg"
         full_path = os.path.join(save_dir, image_filename)
         cv2.imwrite(full_path, cropped_frame)
         print(f"Új személy képe mentve: {full_path}")
