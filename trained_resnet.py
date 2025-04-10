@@ -148,17 +148,17 @@ def batch_predict_folder(folder_path, class_names):
     
     for i, count in enumerate(class_counts):
         print(f"{class_names[i]}: {count} kép")
-
+'''
 # Futtatás
 if __name__ == "__main__":
-    class_names = ["apa", "aron", "hanna", "fanni"]
-    folder = "data/employees/fanni"
+    class_names = ["apa", "aron", "fanni", "hanna"]
+    folder = "data/employees/aron"
 
     batch_predict_folder(folder, class_names)
 '''
 #Futtatás anchorképpel
 if __name__ == "__main__":
-    class_names = ["apa", "aron", "hanna"]
+    class_names = ["apa", "aron", "fanni", "hanna"]
     image_path = "anchor.jpg" 
 
     if not os.path.exists(image_path):
@@ -166,5 +166,4 @@ if __name__ == "__main__":
     else:
         pred, probs = predict_class(image_path)
         print(f"\n A kép osztálya: {class_names[pred]}")
-        print(f"Valószínűségek: {probs}")
-'''
+        print(f"Valószínűségek: {probs[pred]*100:.2f}%")
