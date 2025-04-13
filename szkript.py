@@ -2,11 +2,11 @@ import os
 import shutil
 
 # Forrás mappa
-src_dir = "data/fanni"
+src_dir = "data/isti"
 
 # Cél mappák
-train_dir = "data/train/fanni"
-val_dir = "data/val/fanni"
+train_dir = "data/train/isti"
+val_dir = "data/val/isti"
 
 # Célmappák létrehozása, ha nem léteznek
 os.makedirs(train_dir, exist_ok=True)

@@ -87,14 +87,14 @@ class resNet(nn.Module):
 #-------------------------------------------------------------
 # Modellpéldány létrehozása és betöltése
 embedding_dim = 128
-num_classes = 4  # aron apa hanna és fanni
+num_classes = 5  # aron apa hanna fanni és isti
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = resNet([3, 4, 6, 3], embedding_dim=embedding_dim).to(device)
 classifier = nn.Linear(embedding_dim, num_classes).to(device)
 
-model.load_state_dict(torch.load("trained_resnet_embeddings_four_person.pth"))
-classifier.load_state_dict(torch.load("resnet_classifier_four_person.pth"))
+model.load_state_dict(torch.load("trained_resnet_embeddings_final.pth"))
+classifier.load_state_dict(torch.load("resnet_classifier_final.pth"))
 
 model.eval()
 classifier.eval()
@@ -148,17 +148,17 @@ def batch_predict_folder(folder_path, class_names):
     
     for i, count in enumerate(class_counts):
         print(f"{class_names[i]}: {count} kép")
-'''
+
 # Futtatás
 if __name__ == "__main__":
-    class_names = ["apa", "aron", "fanni", "hanna"]
-    folder = "data/employees/aron"
+    class_names = ["apa", "aron", "fanni", "hanna", "isti"]
+    folder = "data/employees/hanna"
 
     batch_predict_folder(folder, class_names)
 '''
 #Futtatás anchorképpel
 if __name__ == "__main__":
-    class_names = ["apa", "aron", "fanni", "hanna"]
+    class_names = ["apa", "aron", "fanni", "hanna", "isti"]
     image_path = "anchor.jpg" 
 
     if not os.path.exists(image_path):
@@ -167,3 +167,4 @@ if __name__ == "__main__":
         pred, probs = predict_class(image_path)
         print(f"\n A kép osztálya: {class_names[pred]}")
         print(f"Valószínűségek: {probs[pred]*100:.2f}%")
+'''
